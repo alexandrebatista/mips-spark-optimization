@@ -23,3 +23,23 @@ def enumerateUsers(users, fileName):
                     users.add(int(user))
 
     return users
+
+def buildFiles(fileNames, resultFileName):
+    resultFile = open(resultFileName, "w")
+    count = 0
+    limit = 100
+    for fileName in fileNames:
+        with open(fileName) as file:
+            for line in file:
+                if ':' not in line:
+                    user, rating = getUserIdAndRating(line)
+                    resultFile.write(str(user) + '::' + str(movie) + '::' + str(rating) + '\n')
+                    count +=1
+                else:
+                    movie = line.split(':')[0]
+
+                if count >= limit:
+                    break
+
+        if count >= limit:
+            break
