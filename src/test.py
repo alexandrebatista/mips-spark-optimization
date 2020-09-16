@@ -24,10 +24,7 @@ def generateUsersItensVectors(inputFilePath):
             coldStartStrategy="drop")
     model = als.fit(training)
 
-    usersDataframe = model.userFactors.toPandas()
-    itensDataframe = model.itemFactors.toPandas()
-
-    return usersDataframe, itensDataframe
+    return model.userFactors, model.itemFactors
 
 # Evaluate the model by computing the RMSE on the test data
 #predictions = model.transform(test)

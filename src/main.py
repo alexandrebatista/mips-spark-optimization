@@ -5,6 +5,7 @@ from pyspark.sql import HiveContext
 
 from tools import buildFiles 
 from test import generateUsersItensVectors
+from mips import process
 
 # Initialize Saprk Session
 import os
@@ -19,8 +20,14 @@ fileNames = [DATA_PATH + 'combined_data_1.txt', DATA_PATH + 'combined_data_2.txt
 if not os.path.isfile(RESULTS_PATH + INPUT_FILE_NAME):
     buildFiles(fileNames, RESULTS_PATH + INPUT_FILE_NAME)
 
-usersDataFrame, itensDataframe = generateUsersItensVectors(RESULTS_PATH + INPUT_FILE_NAME)
-print(usersDataFrame)
+usersFactors, itensFactors = generateUsersItensVectors(RESULTS_PATH + INPUT_FILE_NAME)
+
+usersDataframe = usersFactors.toPandas()
+itensDataframe = itensFactors.toPandas()
+
+process(usersFactors, itensFactors)
+
+print(usersDataframe)
 print(itensDataframe)
     #f = open(USERS_FILE_NAME, "w")
     #for user in users:
