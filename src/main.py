@@ -27,8 +27,8 @@ itensDataframe = itensFactors.toPandas()
 
 process(usersFactors, itensFactors)
 
-print(usersDataframe)
-print(itensDataframe)
+#print(usersDataframe)
+#print(itensDataframe)
     #f = open(USERS_FILE_NAME, "w")
     #for user in users:
     #    f.write(str(user) + ',')
