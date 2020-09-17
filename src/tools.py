@@ -27,7 +27,7 @@ def enumerateUsers(users, fileName):
 def buildFiles(fileNames, resultFileName):
     resultFile = open(resultFileName, "w")
     count = 0
-    limit = 100
+    limit = 5000
     for fileName in fileNames:
         with open(fileName) as file:
             for line in file:
