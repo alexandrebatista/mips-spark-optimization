@@ -31,14 +31,17 @@ def f(iterator, centers, itensDataframe):
     biggest = 0
     theta = -1000
     L = []
-    k = 10
-    
+    K = 10
+    users = []
+
     # Construct Index
     for user in iterator:
         id = user.__getitem__("id")
         userLatentFactors = user.__getitem__("features")
         partition = user.__getitem__("prediction")
         centroid = centers[partition]
+
+        users.append((id, userLatentFactors))
 
         angle = angle_between(userLatentFactors, centroid)
         if angle > theta:
@@ -55,21 +58,28 @@ def f(iterator, centers, itensDataframe):
         L = sorted(L, reverse = True, key = lambda x: x[1])
         
         # Query Index
-        for user in iterator:
-            id = user.__getitem__("id")
-            userLatentFactors = user.__getitem__("features")
+        print('Query Index')
+
+        for user in users:
+            print('Entrou')
+            id = user[0]
+            userLatentFactors = user[1]
+            heap = []
 
             for itens in L[:K]:
                 itemLatentFactors = itens[2]
                 weight = np.dot(userLatentFactors, itemLatentFactors)
-                #(weight, itens[0])
-                #heapq.heapify(li)
+                heappush(heap, (weight, itens[0]))
 
-         
-        min_heap = heapq.heappop(li)
-
-    if len(L) > 0:
-        print(L)
+            for itens in L[K:]:
+                if itens[1] < min(heap):
+                    break
+                else:
+                    itemLatentFactors = itens[2]
+                    weight = np.dot(userLatentFactors, itemLatentFactors)
+                    if weight > min(heap):
+                        heappush(heap, (weight, itens[0]))
+            print(heap)
 
 def process(usersfactors, itensfactors):
     kmeans = KMeans(k=4, seed=1)  # 4 clusters here
