@@ -2,7 +2,7 @@ from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
 import pyspark.sql.functions as F
 import numpy as np
-import heapq 
+from heapq import heapify, heappush, heappop 
 
 def unit_vector(vector):
     return vector / np.linalg.norm(vector)
@@ -61,9 +61,11 @@ def f(iterator, centers, itensDataframe):
 
             for itens in L[:K]:
                 itemLatentFactors = itens[2]
-                np.dot(userLatentFactors, itemLatentFactors)
+                weight = np.dot(userLatentFactors, itemLatentFactors)
+                #(weight, itens[0])
+                #heapq.heapify(li)
 
-        heapq.heapify(li) 
+         
         min_heap = heapq.heappop(li)
 
     if len(L) > 0:
