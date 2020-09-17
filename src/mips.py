@@ -2,7 +2,7 @@ from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
 import pyspark.sql.functions as F
 import numpy as np
-from heapq import heapify, heappush, heappop 
+from heapq import heapify, heappush, heappop, nlargest
 
 def unit_vector(vector):
     return vector / np.linalg.norm(vector)
@@ -17,7 +17,6 @@ def CBound(vec_c, vec_i, ang_tic, ang_tb):
 	test = norma_i * np.cos(ang_tic - ang_tb)
 	return test if ang_tb < ang_tic else norma_i
 
-
 def queryIndex():
     list_li = list(li)
     for i in L[K:]:
@@ -28,7 +27,6 @@ def queryIndex():
         print(list_li)
 
 def f(iterator, centers, itensDataframe):
-    biggest = 0
     theta = -1000
     L = []
     K = 10
@@ -58,10 +56,7 @@ def f(iterator, centers, itensDataframe):
         L = sorted(L, reverse = True, key = lambda x: x[1])
         
         # Query Index
-        print('Query Index')
-
         for user in users:
-            print('Entrou')
             id = user[0]
             userLatentFactors = user[1]
             heap = []
@@ -79,7 +74,7 @@ def f(iterator, centers, itensDataframe):
                     weight = np.dot(userLatentFactors, itemLatentFactors)
                     if weight > min(heap):
                         heappush(heap, (weight, itens[0]))
-            print(heap)
+            print(nlargest(K, heap))
 
 def process(usersfactors, itensfactors):
     kmeans = KMeans(k=4, seed=1)  # 4 clusters here
@@ -97,17 +92,11 @@ def process(usersfactors, itensfactors):
 
     # Shows the result.
     centers = model.clusterCenters()
-    print("Cluster Centers: ")
-    for center in centers:
-        print(center)
-
-    #new_df = old_df.withColumn('col_n', old_df.col_1 - old_df.col_2)
 
     transformed = transformed.repartition('prediction')
     transformed.show()
 
     #transformed.select('features').write.csv('numbers')
 
-    #transformed.foreachPartition(f)
     itensDataframe = itensfactors.toPandas()
     transformed.foreachPartition(lambda iterator: f(iterator, centers, itensDataframe))

@@ -38,13 +38,5 @@ def generateUsersItensVectors(inputFilePath):
 ## Generate top 10 user recommendations for each movie
 #movieRecs = model.recommendForAllItems(10)
 #
-#
-#print(userRecs.head())
-#
-#print('\n')
-#print(model.userFactors)
-#print(model.userFactors.head())
-#print(model.itemFactors.head())
-#
 ##als = ALS(maxIter=5, regParam=0.01, implicitPrefs=True,
 ##          userCol="userId", itemCol="movieId", ratingCol="rating")
