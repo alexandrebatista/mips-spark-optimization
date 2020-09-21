@@ -26,7 +26,7 @@ def queryIndex():
             list_li.append(vec_u.T * i) # add i to H with weight u.T*i
         print(list_li)
 
-def f(iterator, centers, itensDataframe):
+def ParalelMaximus(iterator, centers, itensDataframe):
     theta = -1000
     L = []
     K = 10
@@ -76,12 +76,66 @@ def f(iterator, centers, itensDataframe):
                         heappush(heap, (weight, itens[0]))
             print(nlargest(K, heap))
 
+def SequencialMaximus(usersDataframe, itensDataframe, centers):
+    print(usersDataframe)
+    for clusterKey in usersDataframe['prediction'].unique():
+            clusterUsers = usersDataframe[usersDataframe.prediction == clusterKey]
+
+            theta = -1000
+            L = []
+            K = 10
+            users = []
+
+            # Construct Index
+            for index, row in clusterUsers.iterrows():
+                id = row["id"]
+                userLatentFactors = row["features"]
+                partition = row["prediction"]
+                centroid = centers[partition]
+
+                users.append((id, userLatentFactors))
+
+                angle = angle_between(userLatentFactors, centroid)
+                if angle > theta:
+                    theta = angle
+
+            if theta != -1000:
+                for index, row in itensDataframe.iterrows():
+                    itemLatentFactors = row[1]
+                    angle = angle_between(itemLatentFactors, centroid)
+                    CB = CBound(centroid, itemLatentFactors, angle, theta)
+                    LItem = (row[0], CB, itemLatentFactors)
+                    L.append(LItem)
+
+                L = sorted(L, reverse = True, key = lambda x: x[1])
+                
+                # Query Index
+                for user in users:
+                    id = user[0]
+                    userLatentFactors = user[1]
+                    heap = []
+
+                    for itens in L[:K]:
+                        itemLatentFactors = itens[2]
+                        weight = np.dot(userLatentFactors, itemLatentFactors)
+                        heappush(heap, (weight, itens[0]))
+
+                    for itens in L[K:]:
+                        if itens[1] < min(heap):
+                            break
+                        else:
+                            itemLatentFactors = itens[2]
+                            weight = np.dot(userLatentFactors, itemLatentFactors)
+                            if weight > min(heap):
+                                heappush(heap, (weight, itens[0]))
+                    print(nlargest(K, heap))
+
 def process(usersfactors, itensfactors):
     kmeans = KMeans(k=4, seed=1)  # 4 clusters here
     model = kmeans.fit(usersfactors.select('features'))
 
     transformed = model.transform(usersfactors)
-    transformed.show() 
+    #transformed.show() 
 
     # Trains a k-means model.
     #kmeans = KMeans().setK(2).setSeed(1)
@@ -94,9 +148,15 @@ def process(usersfactors, itensfactors):
     centers = model.clusterCenters()
 
     transformed = transformed.repartition('prediction')
-    transformed.show()
+    #transformed.show()
 
     #transformed.select('features').write.csv('numbers')
 
+    usersDataframe = transformed.toPandas()
     itensDataframe = itensfactors.toPandas()
-    transformed.foreachPartition(lambda iterator: f(iterator, centers, itensDataframe))
+
+    # Sequencial version
+    SequencialMaximus(usersDataframe, itensDataframe, centers)
+
+    # Parallel version
+    #transformed.foreachPartition(lambda iterator: ParalelMaximus(iterator, centers, itensDataframe))

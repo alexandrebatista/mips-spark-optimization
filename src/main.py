@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import HiveContext
 
 from tools import buildFiles 
-from test import generateUsersItensVectors
+from latentsFactorsModel import generateUsersItensVectors
 from mips import process
 
 # Initialize Saprk Session
@@ -13,7 +13,7 @@ import os
 DATA_PATH = '../data/'
 RESULTS_PATH = '../results/'
 
-INPUT_FILE_NAME = 'inputData-top10million.txt'
+INPUT_FILE_NAME = 'inputData-topNmillion.txt'
 
 fileNames = [DATA_PATH + 'combined_data_1.txt', DATA_PATH + 'combined_data_2.txt', DATA_PATH + 'combined_data_3.txt', DATA_PATH + 'combined_data_4.txt']
 
