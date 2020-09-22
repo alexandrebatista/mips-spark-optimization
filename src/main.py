@@ -24,7 +24,6 @@ usersFactors, itensFactors = generateUsersItensVectors(RESULTS_PATH + INPUT_FILE
 
 usersDataframe = usersFactors.toPandas()
 itensDataframe = itensFactors.toPandas()
-usersFactors.show()
 process(usersFactors, itensFactors)
 
 #print(usersDataframe)
